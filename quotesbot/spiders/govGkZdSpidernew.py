@@ -16,18 +16,18 @@ from selenium.webdriver.chrome.options import Options
 logger = logging.getLogger(__name__)
 
 #公开招标三个月、今日数据
-class GovGkZsSpider(scrapy.Spider):
-    name = "govGkZsSpider"
+class GovGkZdSpidernew(scrapy.Spider):
+    name = "govGkZdSpidernew"
 
     base = "http://www.ccgp.gov.cn"
     # 标题过滤列表
     filter_list = ["信息", "医疗", "系统", "软件", "绩效", "数字", "电子", "技术", "维护", "管理", "项目", "服务", "接口"]
 
     today = datetime.date.today()
+
     #指定时间段
     end_time = (today - relativedelta(days=+1)).strftime('%Y:%m:%d') #昨天
-    start_time = (today - relativedelta(days=+2)).strftime('%Y:%m:%d') # 前天
-    # start_time = (today - relativedelta(months=+3)).strftime('%Y:%m:%d') #指定月份
+    start_time = (today - relativedelta(days=+9)).strftime('%Y:%m:%d') # 前天
 
     baseUrl = "http://search.ccgp.gov.cn/bxsearch?"
     paraS = "searchtype=1&page_index=1&bidSort=0&buyerName=&projectId=&pinMu=3&bidType="
@@ -35,7 +35,9 @@ class GovGkZsSpider(scrapy.Spider):
     paraM = "&dbselect=bidx&kw=医院"
     zdTime = "&start_time=" + start_time + "&end_time=" + end_time + "&timeType=6"
 
-    url_gk_zd = baseUrl + paraS + "1" + paraM + zdTime + paraE
+    # url_gk3 公开招标三个月 url_xj3询价三个月 url_gk_today公开今日  url_xj_today询价今日
+    url_gk_zd1 = baseUrl + paraS + "1" + paraM + zdTime + paraE
+    print(url_gk_zd1)
 
     # 将chrome初始化放到spider中，成为spider中的元素
     def __init__(self):
@@ -45,19 +47,23 @@ class GovGkZsSpider(scrapy.Spider):
         chrome_options = Options()
         chrome_options.add_argument('--headless')
         self.driver = webdriver.Chrome(chrome_options=chrome_options,executable_path=path)
+        # self.driver = webdriver.Chrome(path)
+
         super().__init__()#调用父类方法
         # 设置信号量，当收到spider_closed信号时，调用mySpiderCloseHandle方法，关闭chrome
-        dispatcher.connect(receiver=self.govGkZsSpiderCloseHandle,
+        dispatcher.connect(receiver=self.govGkZdSpidernewCloseHandle,
                            signal=signals.spider_closed
                            )
 
     # 信号量处理函数：关闭chrome浏览器
-    def govGkZsSpiderCloseHandle(self, spider):
-        print(f"govGkZsSpiderCloseHandle: enter ")
+    def govGkZdSpidernewCloseHandle(self, spider):
+        print(f"govGkZdSpidernewCloseHandle: enter ")
         self.driver.quit()
 
     start_urls = [
-        url_gk_zd,
+        # url_gk3,
+        url_gk_zd1,
+        # url_gk_zd
     ]
 
     # filter_num =0
@@ -84,7 +90,7 @@ class GovGkZsSpider(scrapy.Spider):
 
                 if int(nextPageNum) >= 1:
                     # next_url = self.url_gk3.replace("page_index=1", "page_index=" + nextPageNum)#三个月数据
-                    next_url = self.url_gk_zd.replace("page_index=1", "page_index=" + nextPageNum)
+                    next_url = self.url_gk_zd1.replace("page_index=1", "page_index=" + nextPageNum)
                     yield scrapy.Request(url=next_url,
                                           callback=self.parse,
                                           dont_filter=True)  # 不去重

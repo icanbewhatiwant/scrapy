@@ -13,7 +13,9 @@ class SeleniumMiddleware(object):
 
     def process_request(self, request, spider):
         try:
-            if spider.name == 'seleniumSpider' or spider.name == 'govBidxj':
+            name_list = ['seleniumSpider','govGkZdSpidernew','threeMonthGk','govBidxj','ThreeMonXj','govXjZd']
+            # if spider.name == 'seleniumSpider' or spider.name == 'govBidxj' or spider.name=='govGkZdSpidernew' or spider.name=='threeMonthGk':
+            if spider.name in name_list:
                 spider.driver.get(request.url)
                 delay = random.randint(2, 5)
                 time.sleep(delay)
