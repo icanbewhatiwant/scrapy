@@ -53,6 +53,8 @@ class SeleniumSpider(scrapy.Spider):
         chrome_options = Options()
         chrome_options.add_argument('--headless')
         self.driver = webdriver.Chrome(chrome_options=chrome_options,executable_path=path)
+        # self.driver = webdriver.Chrome(path)
+
         super().__init__()#调用父类方法
         # 设置信号量，当收到spider_closed信号时，调用mySpiderCloseHandle方法，关闭chrome
         dispatcher.connect(receiver=self.SeleniumSpiderCloseHandle,
